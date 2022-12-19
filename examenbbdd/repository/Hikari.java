@@ -16,7 +16,7 @@ public class Hikari {
         config.setUsername(user);
         config.setPassword(psswd);
         config.addDataSourceProperty("minimumIdle", "5");
-        config.addDataSourceProperty("maximumPoolSize", "10");
+        config.addDataSourceProperty("maximumPoolSize", "20");
 
         dataSource = new HikariDataSource(config);
     }

@@ -6,19 +6,26 @@ public class Empleado {
     private String apellido;
     private String email;
     private Double sueldo;
-    private Departamento departamento;
+    private Direccion direccion;
 
-    public Empleado(long id, String nombre, String apellido, String email, Double sueldo, Departamento departamento) {
+    public Empleado(long id, String nombre, String apellido, String email, Double sueldo, Direccion direccion) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.sueldo = sueldo;
-        this.departamento = departamento;
+        this.direccion = direccion;
+    }
+
+    public Empleado(String nombre, String apellido, String email, Double sueldo, Direccion direccion) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.email = email;
+        this.sueldo = sueldo;
+        this.direccion = direccion;
     }
 
     // Getters
-
     public long getId() {
         return id;
     }
@@ -39,13 +46,11 @@ public class Empleado {
         return sueldo;
     }
 
-    public Departamento getDepartamento() {
-        return departamento;
+    public Direccion getDireccion() {
+        return direccion;
     }
 
     // Setters
-
-
     public void setId(long id) {
         this.id = id;
     }
@@ -66,8 +71,8 @@ public class Empleado {
         this.sueldo = sueldo;
     }
 
-    public void setDepartamento(Departamento departamento) {
-        this.departamento = departamento;
+    public void setDireccion (Direccion direccion) {
+        this.direccion = direccion;
     }
 
     @Override
@@ -78,7 +83,7 @@ public class Empleado {
                 ", apellido='" + apellido + '\'' +
                 ", email='" + email + '\'' +
                 ", sueldo=" + sueldo +
-                ", departamento=" + departamento +
+                ", direccion=" + direccion +
                 '}';
     }
 }

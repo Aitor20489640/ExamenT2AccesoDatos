@@ -6,6 +6,6 @@ public interface Repository<T, K> {
     List<T> findAll();
     T findById(K id);
     void save(T t);
-    void update (T id);
-    void deleteById (K id);
+    void update (T t);
+    void deleteById(T t);
 }

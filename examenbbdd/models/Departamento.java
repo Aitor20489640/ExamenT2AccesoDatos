@@ -9,6 +9,10 @@ public class Departamento {
         this.nombre = nombre;
     }
 
+    public Departamento(String nombre) {
+        this.nombre = nombre;
+    }
+
     // Getters
     public long getId() {
         return id;

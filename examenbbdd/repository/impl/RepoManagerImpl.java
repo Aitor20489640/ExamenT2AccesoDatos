@@ -1,14 +1,14 @@
 package examenbbdd.repository.impl;
 
-import examenbbdd.repository.DepartamentoRepository;
-import examenbbdd.repository.Hikari;
-import examenbbdd.repository.RepoManager;
+import examenbbdd.repository.*;
 
 public class RepoManagerImpl implements RepoManager {
 
     private Hikari connectionPool;
 
-    private DepartamentoRepositoryImpl deptRepo = null;
+    private DepartamentoRepository deptRepo = null;
+    private EmpleadoRepository empleadoRepo = null;
+    private DireccionRepository direccionRepo = null;
 
     public RepoManagerImpl() {
         this.connectionPool = new Hikari();
@@ -20,5 +20,21 @@ public class RepoManagerImpl implements RepoManager {
             deptRepo = new DepartamentoRepositoryImpl(connectionPool.getDataSource());
         }
         return deptRepo;
+    }
+
+    @Override
+    public EmpleadoRepository getEmpleadoRepository() {
+        if (empleadoRepo == null) {
+            empleadoRepo = new EmpleadoRepositoryImpl(connectionPool.getDataSource());
+        }
+        return empleadoRepo;
+    }
+
+    @Override
+    public DireccionRepository getDireccionRepository() {
+        if (direccionRepo == null) {
+            direccionRepo = new DireccionRepositoryImpl(connectionPool.getDataSource());
+        }
+        return direccionRepo;
     }
 }

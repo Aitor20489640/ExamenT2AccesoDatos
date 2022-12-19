@@ -1,9 +1,10 @@
 package examenbbdd.repository.impl;
 
-
 import com.zaxxer.hikari.HikariDataSource;
 import examenbbdd.models.Departamento;
-import examenbbdd.repository.DepartamentoRepository;
+import examenbbdd.models.Direccion;
+import examenbbdd.repository.DireccionRepository;
+import examenbbdd.repository.EmpleadoRepository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,78 +13,83 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DepartamentoRepositoryImpl implements DepartamentoRepository {
+public class DireccionRepositoryImpl implements DireccionRepository {
 
-    final String FINDALL = "SELECT * FROM departamentos";
-    final String FINDBYKEY = "SELECT * FROM departamentos WHERE %s = ?";
-    final String SAVE = "INSERT INTO departamentos (nombre) VALUES (?)";
-    final String UPDATE = "UPDATE departamentos SET nombre = ? WHERE id = ?";
-    final String DELETE = "DELETE FROM departamentos WHERE id = ?";
+    final String FINDALL = "SELECT * FROM direcciones";
+    final String FINDBYKEY = "SELECT * FROM direcciones WHERE %s = ?";
+    final String SAVE = "INSERT INTO direcciones (empleado_id, calle, ciudad, pais) VALUES (?, ?, ?, ?)";
+    final String UPDATE = "UPDATE direcciones SET empleado_id = ?, calle = ?, ciudad = ?, pais = ? WHERE id = ?";
+    final String DELETE = "DELETE FROM direcciones WHERE id = ?";
 
     private HikariDataSource dataSource;
+    private RepoManagerImpl repoManager;
 
-    public DepartamentoRepositoryImpl(HikariDataSource dataSource) {
+    public DireccionRepositoryImpl(HikariDataSource dataSource) {
         this.dataSource = dataSource;
+        repoManager = new RepoManagerImpl();
     }
 
     @Override
-    public List<Departamento> findAll() {
-        List<Departamento> departamentos = new ArrayList<>();
+    public List<Direccion> findAll() {
+        List<Direccion> direccions = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement sentencia = connection.prepareStatement(FINDALL, PreparedStatement.RETURN_GENERATED_KEYS);
-             ResultSet rs = sentencia.executeQuery()){
-            while (rs.next()) {
-                departamentos.add(convertToDepartamento(rs));
+            ResultSet rs = sentencia.executeQuery()){
+            if (rs.next()) {
+                direccions.add(convertToDirecion(rs));
             }
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
-
-        return departamentos;
+        return direccions;
     }
 
     @Override
-    public Departamento findById(Long id) {
-        Departamento departamento = null;
+    public Direccion findById(Long id) {
+        Direccion direccion = null;
         try (Connection connection = dataSource.getConnection();
              PreparedStatement sentencia = connection.prepareStatement(String.format(FINDBYKEY, "id"), PreparedStatement.RETURN_GENERATED_KEYS)){
             sentencia.setLong(1, id);
             ResultSet rs = sentencia.executeQuery();
             if (rs.next()) {
-                departamento = convertToDepartamento(rs);
+                direccion = convertToDirecion(rs);
             }
             rs.close();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
-        return departamento;
+        return direccion;
+
     }
 
     @Override
-    public Departamento findByKey(String key, Object value) {
-        Departamento departamento = null;
+    public Direccion findByKey(String key, Object value) {
+        Direccion direccion = null;
         try (Connection connection = dataSource.getConnection();
              PreparedStatement sentencia = connection.prepareStatement(String.format(FINDBYKEY, key), PreparedStatement.RETURN_GENERATED_KEYS)){
             sentencia.setObject(1, value);
             ResultSet rs = sentencia.executeQuery();
             if (rs.next()) {
-                departamento = convertToDepartamento(rs);
+                direccion = convertToDirecion(rs);
             }
             rs.close();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
-        return departamento;
+        return direccion;
     }
 
     @Override
-    public void save(Departamento departamento) {
+    public void save(Direccion direccion) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement sentencia = connection.prepareStatement(SAVE, PreparedStatement.RETURN_GENERATED_KEYS)){
-            sentencia.setString(1, departamento.getNombre());
+            sentencia.setLong(1, direccion.getEmpleado().getId());
+            sentencia.setString(2, direccion.getCalle());
+            sentencia.setString(3, direccion.getCiudad());
+            sentencia.setString(4, direccion.getPais());
             sentencia.executeUpdate();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -92,11 +98,15 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
     }
 
     @Override
-    public void update(Departamento t) {
+    public void update(Direccion direccion) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement sentencia = connection.prepareStatement(UPDATE, PreparedStatement.RETURN_GENERATED_KEYS)){
-            sentencia.setString(1, t.getNombre());
-            sentencia.setLong(2, t.getId());
+            new RepoManagerImpl().getEmpleadoRepository().update(direccion.getEmpleado());
+            sentencia.setLong(1, direccion.getEmpleado().getId());
+            sentencia.setString(2, direccion.getCalle());
+            sentencia.setString(3, direccion.getCiudad());
+            sentencia.setString(4, direccion.getPais());
+            sentencia.setLong(5, direccion.getId());
             sentencia.executeUpdate();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -105,10 +115,11 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
     }
 
     @Override
-    public void deleteById(Departamento departamento) {
+    public void deleteById(Direccion direccion) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement sentencia = connection.prepareStatement(DELETE, PreparedStatement.RETURN_GENERATED_KEYS)){
-            sentencia.setLong(1, departamento.getId());
+            new RepoManagerImpl().getEmpleadoRepository().deleteById(direccion.getEmpleado());
+            sentencia.setLong(1, direccion.getId());
             sentencia.executeUpdate();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -116,10 +127,13 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
         }
     }
 
-    private Departamento convertToDepartamento(ResultSet rs) throws SQLException {
-        return new Departamento(
-                rs.getInt("id"),
-                rs.getString("nombre")
+    private Direccion convertToDirecion(ResultSet rs) throws SQLException {
+        return new Direccion(
+                rs.getLong("id"),
+                repoManager.getEmpleadoRepository().findById(rs.getLong("empleado_id")),
+                rs.getString("calle"),
+                rs.getString("ciudad"),
+                rs.getString("pais")
         );
     }
 }

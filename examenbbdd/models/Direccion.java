@@ -15,6 +15,13 @@ public class Direccion {
         this.pais = pais;
     }
 
+    public Direccion(Empleado empleado, String calle, String ciudad, String pais) {
+        this.empleado = empleado;
+        this.calle = calle;
+        this.ciudad = ciudad;
+        this.pais = pais;
+    }
+
     // Getters
 
     public long getId() {
